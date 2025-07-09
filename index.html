@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/JalgaonZoneAgHVDSConsumers_2.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[19.891859477435894,73.60549344999998],[22.118081682564103,76.46428854999999]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleRoad_0');
+        map.getPane('pane_GoogleRoad_0').style.zIndex = 400;
+        var layer_GoogleRoad_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleRoad_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleRoad_0;
+        map.addLayer(layer_GoogleRoad_0);
+        map.createPane('pane_GoogleSatellite_1');
+        map.getPane('pane_GoogleSatellite_1').style.zIndex = 401;
+        var layer_GoogleSatellite_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_1',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleSatellite_1;
+        map.addLayer(layer_GoogleSatellite_1);
+        function pop_JalgaonZoneAgHVDSConsumers_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">REGION</th>\
+                        <td>' + (feature.properties['REGION'] !== null ? autolinker.link(String(feature.properties['REGION']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ZONE</th>\
+                        <td>' + (feature.properties['ZONE'] !== null ? autolinker.link(String(feature.properties['ZONE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CIRCLE</th>\
+                        <td>' + (feature.properties['CIRCLE'] !== null ? autolinker.link(String(feature.properties['CIRCLE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DIVISION</th>\
+                        <td>' + (feature.properties['DIVISION'] !== null ? autolinker.link(String(feature.properties['DIVISION']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SUB_DIV</th>\
+                        <td>' + (feature.properties['SUB_DIV'] !== null ? autolinker.link(String(feature.properties['SUB_DIV']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BU</th>\
+                        <td>' + (feature.properties['BU'] !== null ? autolinker.link(String(feature.properties['BU']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SECT_NAME</th>\
+                        <td>' + (feature.properties['SECT_NAME'] !== null ? autolinker.link(String(feature.properties['SECT_NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CONS_NO</th>\
+                        <td>' + (feature.properties['CONS_NO'] !== null ? autolinker.link(String(feature.properties['CONS_NO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CONS_NAME</th>\
+                        <td>' + (feature.properties['CONS_NAME'] !== null ? autolinker.link(String(feature.properties['CONS_NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ADDRESS</th>\
+                        <td>' + (feature.properties['ADDRESS'] !== null ? autolinker.link(String(feature.properties['ADDRESS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SANC LOAD</th>\
+                        <td>' + (feature.properties['SANC LOAD'] !== null ? autolinker.link(String(feature.properties['SANC LOAD']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">METER NO</th>\
+                        <td>' + (feature.properties['METER NO'] !== null ? autolinker.link(String(feature.properties['METER NO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">MOBILE</th>\
+                        <td>' + (feature.properties['MOBILE'] !== null ? autolinker.link(String(feature.properties['MOBILE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DTC</th>\
+                        <td>' + (feature.properties['DTC'] !== null ? autolinker.link(String(feature.properties['DTC']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LATITUDE</th>\
+                        <td>' + (feature.properties['LATITUDE'] !== null ? autolinker.link(String(feature.properties['LATITUDE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LONGITUDE</th>\
+                        <td>' + (feature.properties['LONGITUDE'] !== null ? autolinker.link(String(feature.properties['LONGITUDE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_JalgaonZoneAgHVDSConsumers_2_0(feature) {
+            switch(String(feature.properties['DIVISION'])) {
+                case 'BHUSAWAL UCR DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(48,18,59,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'CHALISGAON DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,79,188,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DHARANGAON DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,134,251,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DHULE RURAL DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(40,188,235,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DHULE URBAN DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(27,229,181,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DONDAICHA DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(88,251,116,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'JALGAON URBAN DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(164,252,60,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MUKTAINAGAR DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(218,227,54,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NANDURBAR (O) DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,185,56,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'PACHORA DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,126,33,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SAVADA DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(227,68,10,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SHAHADA DIVISION':
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(184,29,2,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+                radius: 5.0,
+                opacity: 1,
+                color: 'rgba(128,67,36,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(122,4,3,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_JalgaonZoneAgHVDSConsumers_2');
+        map.getPane('pane_JalgaonZoneAgHVDSConsumers_2').style.zIndex = 402;
+        map.getPane('pane_JalgaonZoneAgHVDSConsumers_2').style['mix-blend-mode'] = 'normal';
+        var layer_JalgaonZoneAgHVDSConsumers_2 = new L.geoJson(json_JalgaonZoneAgHVDSConsumers_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_JalgaonZoneAgHVDSConsumers_2',
+            layerName: 'layer_JalgaonZoneAgHVDSConsumers_2',
+            pane: 'pane_JalgaonZoneAgHVDSConsumers_2',
+            onEachFeature: pop_JalgaonZoneAgHVDSConsumers_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_JalgaonZoneAgHVDSConsumers_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_JalgaonZoneAgHVDSConsumers_2);
+        map.addLayer(layer_JalgaonZoneAgHVDSConsumers_2);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: 'Jalgaon Zone Ag-HVDS Consumers<br /><table><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_BHUSAWALUCRDIVISION0.png" /></td><td>BHUSAWAL UCR DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_CHALISGAONDIVISION1.png" /></td><td>CHALISGAON DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_DHARANGAONDIVISION2.png" /></td><td>DHARANGAON DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_DHULERURALDIVISION3.png" /></td><td>DHULE RURAL DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_DHULEURBANDIVISION4.png" /></td><td>DHULE URBAN DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_DONDAICHADIVISION5.png" /></td><td>DONDAICHA DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_JALGAONURBANDIVISION6.png" /></td><td>JALGAON URBAN DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_MUKTAINAGARDIVISION7.png" /></td><td>MUKTAINAGAR DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_NANDURBARODIVISION8.png" /></td><td>NANDURBAR (O) DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_PACHORADIVISION9.png" /></td><td>PACHORA DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_SAVADADIVISION10.png" /></td><td>SAVADA DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_SHAHADADIVISION11.png" /></td><td>SHAHADA DIVISION</td></tr><tr><td style="text-align: center;"><img src="legend/JalgaonZoneAgHVDSConsumers_2_12.png" /></td><td></td></tr></table>', layer: layer_JalgaonZoneAgHVDSConsumers_2},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_1, radioGroup: 'bm' },
+            {label: "Google Road", layer: layer_GoogleRoad_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_JalgaonZoneAgHVDSConsumers_2,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'CONS_NO'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"CIRCLE": "str","SUB_DIV": "str","SECT_NAME": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_CIRCLE = document.createElement('div');
+            div_CIRCLE.id = "div_CIRCLE";
+            div_CIRCLE.className= "filterselect";
+            document.getElementById("menu").appendChild(div_CIRCLE);
+            sel_CIRCLE = document.createElement('select');
+            sel_CIRCLE.multiple = true;
+            sel_CIRCLE.size = 3;
+            sel_CIRCLE.id = "sel_CIRCLE";
+            var CIRCLE_options_str = "<option value='' unselected></option>";
+            sel_CIRCLE.onchange = function(){filterFunc()};
+            CIRCLE_options_str  += '<option value="DHULE CIRCLE">DHULE CIRCLE</option>';
+            CIRCLE_options_str  += '<option value="JALGAON CIRCLE">JALGAON CIRCLE</option>';
+            CIRCLE_options_str  += '<option value="NANDURBAR CIRCLE">NANDURBAR CIRCLE</option>';
+            sel_CIRCLE.innerHTML = CIRCLE_options_str;
+            div_CIRCLE.appendChild(sel_CIRCLE);
+            var lab_CIRCLE = document.createElement('div');
+            lab_CIRCLE.innerHTML = 'CIRCLE';
+            lab_CIRCLE.className = 'filterlabel';
+            div_CIRCLE.appendChild(lab_CIRCLE);
+            var reset_CIRCLE = document.createElement('div');
+            reset_CIRCLE.innerHTML = 'clear filter';
+            reset_CIRCLE.className = 'filterlabel';
+            reset_CIRCLE.onclick = function() {
+                var options = document.getElementById("sel_CIRCLE").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_CIRCLE.appendChild(reset_CIRCLE);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_SUB_DIV = document.createElement('div');
+            div_SUB_DIV.id = "div_SUB_DIV";
+            div_SUB_DIV.className= "filterselect";
+            document.getElementById("menu").appendChild(div_SUB_DIV);
+            sel_SUB_DIV = document.createElement('select');
+            sel_SUB_DIV.multiple = true;
+            sel_SUB_DIV.size = 10;
+            sel_SUB_DIV.id = "sel_SUB_DIV";
+            var SUB_DIV_options_str = "<option value='' unselected></option>";
+            sel_SUB_DIV.onchange = function(){filterFunc()};
+            SUB_DIV_options_str  += '<option value="AMALNER (U) S/DIVN.">AMALNER (U) S/DIVN.</option>';
+            SUB_DIV_options_str  += '<option value="AMALNER-II">AMALNER-II</option>';
+            SUB_DIV_options_str  += '<option value="Akkalkuwa S/DN">Akkalkuwa S/DN</option>';
+            SUB_DIV_options_str  += '<option value="BHADGAON">BHADGAON</option>';
+            SUB_DIV_options_str  += '<option value="BHUSAWAL (E)">BHUSAWAL (E)</option>';
+            SUB_DIV_options_str  += '<option value="BODWAD">BODWAD</option>';
+            SUB_DIV_options_str  += '<option value="CC O DHULE">CC O DHULE</option>';
+            SUB_DIV_options_str  += '<option value="CHALISGAON R-III">CHALISGAON R-III</option>';
+            SUB_DIV_options_str  += '<option value="CHALISGAON-R-I">CHALISGAON-R-I</option>';
+            SUB_DIV_options_str  += '<option value="CHALISGAON-R-II">CHALISGAON-R-II</option>';
+            SUB_DIV_options_str  += '<option value="CHOPDA I S/DN">CHOPDA I S/DN</option>';
+            SUB_DIV_options_str  += '<option value="CHOPDA-II S/DN">CHOPDA-II S/DN</option>';
+            SUB_DIV_options_str  += '<option value="DEOPUR">DEOPUR</option>';
+            SUB_DIV_options_str  += '<option value="DHARANGAON S/DN.">DHARANGAON S/DN.</option>';
+            SUB_DIV_options_str  += '<option value="DHULE (R)">DHULE (R)</option>';
+            SUB_DIV_options_str  += '<option value="DONDAICHA">DONDAICHA</option>';
+            SUB_DIV_options_str  += '<option value="ERANDOL S/DIVN.">ERANDOL S/DIVN.</option>';
+            SUB_DIV_options_str  += '<option value="JALGAON-R">JALGAON-R</option>';
+            SUB_DIV_options_str  += '<option value="JAMNER">JAMNER</option>';
+            SUB_DIV_options_str  += '<option value="MUKTAINAGAR">MUKTAINAGAR</option>';
+            SUB_DIV_options_str  += '<option value="NAGAR DEOLA S/DN.">NAGAR DEOLA S/DN.</option>';
+            SUB_DIV_options_str  += '<option value="NANDURBAR-R1">NANDURBAR-R1</option>';
+            SUB_DIV_options_str  += '<option value="NANDURBAR-R2">NANDURBAR-R2</option>';
+            SUB_DIV_options_str  += '<option value="NARDANA">NARDANA</option>';
+            SUB_DIV_options_str  += '<option value="NASHIRABAD">NASHIRABAD</option>';
+            SUB_DIV_options_str  += '<option value="NAVAPUR S/DN.">NAVAPUR S/DN.</option>';
+            SUB_DIV_options_str  += '<option value="PACHORA-I">PACHORA-I</option>';
+            SUB_DIV_options_str  += '<option value="PACHORA-II">PACHORA-II</option>';
+            SUB_DIV_options_str  += '<option value="PAHUR">PAHUR</option>';
+            SUB_DIV_options_str  += '<option value="PAROLA">PAROLA</option>';
+            SUB_DIV_options_str  += '<option value="PIMPALNER">PIMPALNER</option>';
+            SUB_DIV_options_str  += '<option value="RAVER S/DIVISION.">RAVER S/DIVISION.</option>';
+            SUB_DIV_options_str  += '<option value="SAKRI S/DN">SAKRI S/DN</option>';
+            SUB_DIV_options_str  += '<option value="SAVADA SUB DIVISION.">SAVADA SUB DIVISION.</option>';
+            SUB_DIV_options_str  += '<option value="SHAHADA - II S/DN">SHAHADA - II S/DN</option>';
+            SUB_DIV_options_str  += '<option value="SHAHADA-I">SHAHADA-I</option>';
+            SUB_DIV_options_str  += '<option value="SHINDKHEDA">SHINDKHEDA</option>';
+            SUB_DIV_options_str  += '<option value="SHIRPUR-I">SHIRPUR-I</option>';
+            SUB_DIV_options_str  += '<option value="SHIRPUR-II">SHIRPUR-II</option>';
+            SUB_DIV_options_str  += '<option value="TALODA">TALODA</option>';
+            SUB_DIV_options_str  += '<option value="VARANGAON S/DN">VARANGAON S/DN</option>';
+            SUB_DIV_options_str  += '<option value="YAWAL I">YAWAL I</option>';
+            SUB_DIV_options_str  += '<option value="YAWAL II SUBDN.">YAWAL II SUBDN.</option>';
+            sel_SUB_DIV.innerHTML = SUB_DIV_options_str;
+            div_SUB_DIV.appendChild(sel_SUB_DIV);
+            var lab_SUB_DIV = document.createElement('div');
+            lab_SUB_DIV.innerHTML = 'SUB_DIV';
+            lab_SUB_DIV.className = 'filterlabel';
+            div_SUB_DIV.appendChild(lab_SUB_DIV);
+            var reset_SUB_DIV = document.createElement('div');
+            reset_SUB_DIV.innerHTML = 'clear filter';
+            reset_SUB_DIV.className = 'filterlabel';
+            reset_SUB_DIV.onclick = function() {
+                var options = document.getElementById("sel_SUB_DIV").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_SUB_DIV.appendChild(reset_SUB_DIV);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_SECT_NAME = document.createElement('div');
+            div_SECT_NAME.id = "div_SECT_NAME";
+            div_SECT_NAME.className= "filterselect";
+            document.getElementById("menu").appendChild(div_SECT_NAME);
+            sel_SECT_NAME = document.createElement('select');
+            sel_SECT_NAME.multiple = true;
+            sel_SECT_NAME.size = 10;
+            sel_SECT_NAME.id = "sel_SECT_NAME";
+            var SECT_NAME_options_str = "<option value='' unselected></option>";
+            sel_SECT_NAME.onchange = function(){filterFunc()};
+            SECT_NAME_options_str  += '<option value="NULL">NULL</option>';
+            SECT_NAME_options_str  += '<option value="ACHEGAON">ACHEGAON</option>';
+            SECT_NAME_options_str  += '<option value="ADAWAD">ADAWAD</option>';
+            SECT_NAME_options_str  += '<option value="ADGAON">ADGAON</option>';
+            SECT_NAME_options_str  += '<option value="AMADADE">AMADADE</option>';
+            SECT_NAME_options_str  += '<option value="AMALGAON">AMALGAON</option>';
+            SECT_NAME_options_str  += '<option value="AMALNER II">AMALNER II</option>';
+            SECT_NAME_options_str  += '<option value="AMALNER RURAL I">AMALNER RURAL I</option>';
+            SECT_NAME_options_str  += '<option value="AMALNER URBAN II">AMALNER URBAN II</option>';
+            SECT_NAME_options_str  += '<option value="ANTURLI">ANTURLI</option>';
+            SECT_NAME_options_str  += '<option value="Akkalkuwa">Akkalkuwa</option>';
+            SECT_NAME_options_str  += '<option value="Arthe">Arthe</option>';
+            SECT_NAME_options_str  += '<option value="Arvi">Arvi</option>';
+            SECT_NAME_options_str  += '<option value="Astha">Astha</option>';
+            SECT_NAME_options_str  += '<option value="BAHADARPUR">BAHADARPUR</option>';
+            SECT_NAME_options_str  += '<option value="BETAWAD">BETAWAD</option>';
+            SECT_NAME_options_str  += '<option value="BHADGAON R1">BHADGAON R1</option>';
+            SECT_NAME_options_str  += '<option value="BHADGAON R2">BHADGAON R2</option>';
+            SECT_NAME_options_str  += '<option value="BHADGAON U 1">BHADGAON U 1</option>';
+            SECT_NAME_options_str  += '<option value="BHADGAON U 2">BHADGAON U 2</option>';
+            SECT_NAME_options_str  += '<option value="BHADLI">BHADLI</option>';
+            SECT_NAME_options_str  += '<option value="BHARVAS">BHARVAS</option>';
+            SECT_NAME_options_str  += '<option value="BODWAD-R(I)">BODWAD-R(I)</option>';
+            SECT_NAME_options_str  += '<option value="BODWAD-R(II)">BODWAD-R(II)</option>';
+            SECT_NAME_options_str  += '<option value="BODWAD-U">BODWAD-U</option>';
+            SECT_NAME_options_str  += '<option value="BORIS">BORIS</option>';
+            SECT_NAME_options_str  += '<option value="Bhamne Section">Bhamne Section</option>';
+            SECT_NAME_options_str  += '<option value="Bhorkheda">Bhorkheda</option>';
+            SECT_NAME_options_str  += '<option value="BorVihir">BorVihir</option>';
+            SECT_NAME_options_str  += '<option value="Borad">Borad</option>';
+            SECT_NAME_options_str  += '<option value="Boradi">Boradi</option>';
+            SECT_NAME_options_str  += '<option value="Brahamanpuri">Brahamanpuri</option>';
+            SECT_NAME_options_str  += '<option value="CHANDSAR">CHANDSAR</option>';
+            SECT_NAME_options_str  += '<option value="CHANGGADEO">CHANGGADEO</option>';
+            SECT_NAME_options_str  += '<option value="CHHADAWEL">CHHADAWEL</option>';
+            SECT_NAME_options_str  += '<option value="CHHAIL">CHHAIL</option>';
+            SECT_NAME_options_str  += '<option value="CHICHOLI">CHICHOLI</option>';
+            SECT_NAME_options_str  += '<option value="CHINCHOLI">CHINCHOLI</option>';
+            SECT_NAME_options_str  += '<option value="CHOPDA(U)-I">CHOPDA(U)-I</option>';
+            SECT_NAME_options_str  += '<option value="CHOPDA-R">CHOPDA-R</option>';
+            SECT_NAME_options_str  += '<option value="CSN R1">CSN R1</option>';
+            SECT_NAME_options_str  += '<option value="CSN R2">CSN R2</option>';
+            SECT_NAME_options_str  += '<option value="Chimthane I Section">Chimthane I Section</option>';
+            SECT_NAME_options_str  += '<option value="Chimthane II section">Chimthane II section</option>';
+            SECT_NAME_options_str  += '<option value="DAHIGAON">DAHIGAON</option>';
+            SECT_NAME_options_str  += '<option value="DAHIWAD">DAHIWAD</option>';
+            SECT_NAME_options_str  += '<option value="DAHIWEL">DAHIWEL</option>';
+            SECT_NAME_options_str  += '<option value="DARANGAON-RURAL">DARANGAON-RURAL</option>';
+            SECT_NAME_options_str  += '<option value="DHAMBHURNI">DHAMBHURNI</option>';
+            SECT_NAME_options_str  += '<option value="DHANORA">DHANORA</option>';
+            SECT_NAME_options_str  += '<option value="DHARANGAON URBAN">DHARANGAON URBAN</option>';
+            SECT_NAME_options_str  += '<option value="DHEKU">DHEKU</option>';
+            SECT_NAME_options_str  += '<option value="Deur">Deur</option>';
+            SECT_NAME_options_str  += '<option value="Dhanora">Dhanora</option>';
+            SECT_NAME_options_str  += '<option value="Dondaicha U-II">Dondaicha U-II</option>';
+            SECT_NAME_options_str  += '<option value="ENGAON">ENGAON</option>';
+            SECT_NAME_options_str  += '<option value="ERANDOL URBAN">ERANDOL URBAN</option>';
+            SECT_NAME_options_str  += '<option value="FAGANA">FAGANA</option>';
+            SECT_NAME_options_str  += '<option value="FATTEPUR">FATTEPUR</option>';
+            SECT_NAME_options_str  += '<option value="FEKARI">FEKARI</option>';
+            SECT_NAME_options_str  += '<option value="GANESHPUR">GANESHPUR</option>';
+            SECT_NAME_options_str  += '<option value="GHADKHAMB">GHADKHAMB</option>';
+            SECT_NAME_options_str  += '<option value="GONDGAON">GONDGAON</option>';
+            SECT_NAME_options_str  += '<option value="GONDUR">GONDUR</option>';
+            SECT_NAME_options_str  += '<option value="GORGAWALE">GORGAWALE</option>';
+            SECT_NAME_options_str  += '<option value="HATED">HATED</option>';
+            SECT_NAME_options_str  += '<option value="Holnanthe">Holnanthe</option>';
+            SECT_NAME_options_str  += '<option value="JAMADA">JAMADA</option>';
+            SECT_NAME_options_str  += '<option value="JAMATHI">JAMATHI</option>';
+            SECT_NAME_options_str  += '<option value="JAMNER-R(I)">JAMNER-R(I)</option>';
+            SECT_NAME_options_str  += '<option value="JAMNER-R(II)">JAMNER-R(II)</option>';
+            SECT_NAME_options_str  += '<option value="JAMNER-U">JAMNER-U</option>';
+            SECT_NAME_options_str  += '<option value="JANVE">JANVE</option>';
+            SECT_NAME_options_str  += '<option value="KALAMSARA">KALAMSARA</option>';
+            SECT_NAME_options_str  += '<option value="KAPADNE">KAPADNE</option>';
+            SECT_NAME_options_str  += '<option value="KARJOD">KARJOD</option>';
+            SECT_NAME_options_str  += '<option value="KARKI">KARKI</option>';
+            SECT_NAME_options_str  += '<option value="KASARE">KASARE</option>';
+            SECT_NAME_options_str  += '<option value="KASODA">KASODA</option>';
+            SECT_NAME_options_str  += '<option value="KEKAT NIMBHORA">KEKAT NIMBHORA</option>';
+            SECT_NAME_options_str  += '<option value="KERHALA">KERHALA</option>';
+            SECT_NAME_options_str  += '<option value="KHANAPUR">KHANAPUR</option>';
+            SECT_NAME_options_str  += '<option value="KHEDGAON">KHEDGAON</option>';
+            SECT_NAME_options_str  += '<option value="KHIRWAD">KHIRWAD</option>';
+            SECT_NAME_options_str  += '<option value="KINGAON">KINGAON</option>';
+            SECT_NAME_options_str  += '<option value="KINHI">KINHI</option>';
+            SECT_NAME_options_str  += '<option value="KOLGAON">KOLGAON</option>';
+            SECT_NAME_options_str  += '<option value="KOLHADI">KOLHADI</option>';
+            SECT_NAME_options_str  += '<option value="KOTHALI">KOTHALI</option>';
+            SECT_NAME_options_str  += '<option value="KUDASHI">KUDASHI</option>';
+            SECT_NAME_options_str  += '<option value="KUKAVAL">KUKAVAL</option>';
+            SECT_NAME_options_str  += '<option value="KURHA">KURHA</option>';
+            SECT_NAME_options_str  += '<option value="KURHA PN.">KURHA PN.</option>';
+            SECT_NAME_options_str  += '<option value="Kanalda">Kanalda</option>';
+            SECT_NAME_options_str  += '<option value="Khandbara">Khandbara</option>';
+            SECT_NAME_options_str  += '<option value="Khapar">Khapar</option>';
+            SECT_NAME_options_str  += '<option value="Khede">Khede</option>';
+            SECT_NAME_options_str  += '<option value="Khedgaon unit">Khedgaon unit</option>';
+            SECT_NAME_options_str  += '<option value="Khondamali">Khondamali</option>';
+            SECT_NAME_options_str  += '<option value="Kochur">Kochur</option>';
+            SECT_NAME_options_str  += '<option value="Kolda">Kolda</option>';
+            SECT_NAME_options_str  += '<option value="Koparli">Koparli</option>';
+            SECT_NAME_options_str  += '<option value="Kumbharkheda">Kumbharkheda</option>';
+            SECT_NAME_options_str  += '<option value="Kusumba">Kusumba</option>';
+            SECT_NAME_options_str  += '<option value="LASGAON">LASGAON</option>';
+            SECT_NAME_options_str  += '<option value="LASUR">LASUR</option>';
+            SECT_NAME_options_str  += '<option value="LOHARA">LOHARA</option>';
+            SECT_NAME_options_str  += '<option value="MAHASDI">MAHASDI</option>';
+            SECT_NAME_options_str  += '<option value="MANGRUL">MANGRUL</option>';
+            SECT_NAME_options_str  += '<option value="MEHUNBARE-I">MEHUNBARE-I</option>';
+            SECT_NAME_options_str  += '<option value="MEHUNBARE-II">MEHUNBARE-II</option>';
+            SECT_NAME_options_str  += '<option value="MHASAWAD">MHASAWAD</option>';
+            SECT_NAME_options_str  += '<option value="MOHADI">MOHADI</option>';
+            SECT_NAME_options_str  += '<option value="MUKTAINAGAR RURAL">MUKTAINAGAR RURAL</option>';
+            SECT_NAME_options_str  += '<option value="MUKTAINAGAR URBAN">MUKTAINAGAR URBAN</option>';
+            SECT_NAME_options_str  += '<option value="Malpur-I">Malpur-I</option>';
+            SECT_NAME_options_str  += '<option value="Malpur-II">Malpur-II</option>';
+            SECT_NAME_options_str  += '<option value="Mandane">Mandane</option>';
+            SECT_NAME_options_str  += '<option value="Mukti">Mukti</option>';
+            SECT_NAME_options_str  += '<option value="NACHANKHEDA">NACHANKHEDA</option>';
+            SECT_NAME_options_str  += '<option value="NAGAON">NAGAON</option>';
+            SECT_NAME_options_str  += '<option value="NANDED">NANDED</option>';
+            SECT_NAME_options_str  += '<option value="NANDRA">NANDRA</option>';
+            SECT_NAME_options_str  += '<option value="NARDANA I">NARDANA I</option>';
+            SECT_NAME_options_str  += '<option value="NARDANA II">NARDANA II</option>';
+            SECT_NAME_options_str  += '<option value="NAVALNAGAR">NAVALNAGAR</option>';
+            SECT_NAME_options_str  += '<option value="NERI">NERI</option>';
+            SECT_NAME_options_str  += '<option value="NIJAMAPUR">NIJAMAPUR</option>';
+            SECT_NAME_options_str  += '<option value="NIMGAVHAN">NIMGAVHAN</option>';
+            SECT_NAME_options_str  += '<option value="Nashirabad Urban">Nashirabad Urban</option>';
+            SECT_NAME_options_str  += '<option value="NashirabadRural">NashirabadRural</option>';
+            SECT_NAME_options_str  += '<option value="Ner I">Ner I</option>';
+            SECT_NAME_options_str  += '<option value="Ner II">Ner II</option>';
+            SECT_NAME_options_str  += '<option value="Nimbhora">Nimbhora</option>';
+            SECT_NAME_options_str  += '<option value="PADLASE">PADLASE</option>';
+            SECT_NAME_options_str  += '<option value="PAHUR I">PAHUR I</option>';
+            SECT_NAME_options_str  += '<option value="PAHUR II">PAHUR II</option>';
+            SECT_NAME_options_str  += '<option value="PALDHI">PALDHI</option>';
+            SECT_NAME_options_str  += '<option value="PAROLA R-I">PAROLA R-I</option>';
+            SECT_NAME_options_str  += '<option value="PAROLA RII">PAROLA RII</option>';
+            SECT_NAME_options_str  += '<option value="PATONDA">PATONDA</option>';
+            SECT_NAME_options_str  += '<option value="PILKHOD">PILKHOD</option>';
+            SECT_NAME_options_str  += '<option value="PIMPALNER RURAL">PIMPALNER RURAL</option>';
+            SECT_NAME_options_str  += '<option value="PIMPALNER URBAN">PIMPALNER URBAN</option>';
+            SECT_NAME_options_str  += '<option value="PIMPRI UNIT">PIMPRI UNIT</option>';
+            SECT_NAME_options_str  += '<option value="PRAKASHA">PRAKASHA</option>';
+            SECT_NAME_options_str  += '<option value="Pachora-Rular">Pachora-Rular</option>';
+            SECT_NAME_options_str  += '<option value="Padalda">Padalda</option>';
+            SECT_NAME_options_str  += '<option value="Patonda">Patonda</option>';
+            SECT_NAME_options_str  += '<option value="Pimpalgaon H">Pimpalgaon H</option>';
+            SECT_NAME_options_str  += '<option value="R-I">R-I</option>';
+            SECT_NAME_options_str  += '<option value="R-II">R-II</option>';
+            SECT_NAME_options_str  += '<option value="RINGANGAON">RINGANGAON</option>';
+            SECT_NAME_options_str  += '<option value="ROTWAD">ROTWAD</option>';
+            SECT_NAME_options_str  += '<option value="Ranala">Ranala</option>';
+            SECT_NAME_options_str  += '<option value="Raver(R)">Raver(R)</option>';
+            SECT_NAME_options_str  += '<option value="SAKARI">SAKARI</option>';
+            SECT_NAME_options_str  += '<option value="SAKEGAON">SAKEGAON</option>';
+            SECT_NAME_options_str  += '<option value="SAKLI">SAKLI</option>';
+            SECT_NAME_options_str  += '<option value="SAMODE">SAMODE</option>';
+            SECT_NAME_options_str  += '<option value="SARANGKHEDA">SARANGKHEDA</option>';
+            SECT_NAME_options_str  += '<option value="SHAHADA RURAL 1">SHAHADA RURAL 1</option>';
+            SECT_NAME_options_str  += '<option value="SHAHADA RURAL 2">SHAHADA RURAL 2</option>';
+            SECT_NAME_options_str  += '<option value="SHELWAD">SHELWAD</option>';
+            SECT_NAME_options_str  += '<option value="SHENDURNI">SHENDURNI</option>';
+            SECT_NAME_options_str  += '<option value="SHEWALI">SHEWALI</option>';
+            SECT_NAME_options_str  += '<option value="SHINDI">SHINDI</option>';
+            SECT_NAME_options_str  += '<option value="SHINDKHEDA RURAL">SHINDKHEDA RURAL</option>';
+            SECT_NAME_options_str  += '<option value="SHINDKHEDA URBAN">SHINDKHEDA URBAN</option>';
+            SECT_NAME_options_str  += '<option value="SHIRSOLI">SHIRSOLI</option>';
+            SECT_NAME_options_str  += '<option value="SONGIR">SONGIR</option>';
+            SECT_NAME_options_str  += '<option value="SONWAD">SONWAD</option>';
+            SECT_NAME_options_str  += '<option value="SUNASGAON">SUNASGAON</option>';
+            SECT_NAME_options_str  += '<option value="Sakri(R)">Sakri(R)</option>';
+            SECT_NAME_options_str  += '<option value="Shindad">Shindad</option>';
+            SECT_NAME_options_str  += '<option value="Shirpur R I">Shirpur R I</option>';
+            SECT_NAME_options_str  += '<option value="Shirpur R II">Shirpur R II</option>';
+            SECT_NAME_options_str  += '<option value="Shirud">Shirud</option>';
+            SECT_NAME_options_str  += '<option value="Sule">Sule</option>';
+            SECT_NAME_options_str  += '<option value="TAKLI">TAKLI</option>';
+            SECT_NAME_options_str  += '<option value="TALEGAON-I">TALEGAON-I</option>';
+            SECT_NAME_options_str  += '<option value="TALEGAON-II">TALEGAON-II</option>';
+            SECT_NAME_options_str  += '<option value="TALVEL">TALVEL</option>';
+            SECT_NAME_options_str  += '<option value="TAMASWADI">TAMASWADI</option>';
+            SECT_NAME_options_str  += '<option value="TARWADE">TARWADE</option>';
+            SECT_NAME_options_str  += '<option value="TONDAPUR">TONDAPUR</option>';
+            SECT_NAME_options_str  += '<option value="Taloda (U)">Taloda (U)</option>';
+            SECT_NAME_options_str  += '<option value="Taloda(R)">Taloda(R)</option>';
+            SECT_NAME_options_str  += '<option value="Thalner">Thalner</option>';
+            SECT_NAME_options_str  += '<option value="UCHANDA">UCHANDA</option>';
+            SECT_NAME_options_str  += '<option value="UMBERKHED">UMBERKHED</option>';
+            SECT_NAME_options_str  += '<option value="Unit R-I">Unit R-I</option>';
+            SECT_NAME_options_str  += '<option value="Unit R-II">Unit R-II</option>';
+            SECT_NAME_options_str  += '<option value="VADODA">VADODA</option>';
+            SECT_NAME_options_str  += '<option value="VARADSIM">VARADSIM</option>';
+            SECT_NAME_options_str  += '<option value="VARANGAON-R(I)">VARANGAON-R(I)</option>';
+            SECT_NAME_options_str  += '<option value="VARANGAON-R(II)">VARANGAON-R(II)</option>';
+            SECT_NAME_options_str  += '<option value="VARDI">VARDI</option>';
+            SECT_NAME_options_str  += '<option value="VARSHI">VARSHI</option>';
+            SECT_NAME_options_str  += '<option value="VELODA">VELODA</option>';
+            SECT_NAME_options_str  += '<option value="VIDGAON">VIDGAON</option>';
+            SECT_NAME_options_str  += '<option value="VIDYANAGARI">VIDYANAGARI</option>';
+            SECT_NAME_options_str  += '<option value="VIVARA">VIVARA</option>';
+            SECT_NAME_options_str  += '<option value="Varul">Varul</option>';
+            SECT_NAME_options_str  += '<option value="Virdel Section">Virdel Section</option>';
+            SECT_NAME_options_str  += '<option value="Visarvadi">Visarvadi</option>';
+            SECT_NAME_options_str  += '<option value="WAKADI">WAKADI</option>';
+            SECT_NAME_options_str  += '<option value="WAWADADA">WAWADADA</option>';
+            SECT_NAME_options_str  += '<option value="WAWDA UNIT">WAWDA UNIT</option>';
+            SECT_NAME_options_str  += '<option value="Wadi">Wadi</option>';
+            SECT_NAME_options_str  += '<option value="Waghali 1">Waghali 1</option>';
+            SECT_NAME_options_str  += '<option value="Waghali 2">Waghali 2</option>';
+            SECT_NAME_options_str  += '<option value="Waghoda">Waghoda</option>';
+            SECT_NAME_options_str  += '<option value="Wakadi">Wakadi</option>';
+            SECT_NAME_options_str  += '<option value="YAWAL R-2">YAWAL R-2</option>';
+            SECT_NAME_options_str  += '<option value="dondaicha rural">dondaicha rural</option>';
+            SECT_NAME_options_str  += '<option value="kajgaon">kajgaon</option>';
+            SECT_NAME_options_str  += '<option value="lohtar">lohtar</option>';
+            SECT_NAME_options_str  += '<option value="mhasawad">mhasawad</option>';
+            SECT_NAME_options_str  += '<option value="nagardeola">nagardeola</option>';
+            SECT_NAME_options_str  += '<option value="navapur">navapur</option>';
+            SECT_NAME_options_str  += '<option value="neri">neri</option>';
+            SECT_NAME_options_str  += '<option value="savada">savada</option>';
+            SECT_NAME_options_str  += '<option value="verkhedi">verkhedi</option>';
+            sel_SECT_NAME.innerHTML = SECT_NAME_options_str;
+            div_SECT_NAME.appendChild(sel_SECT_NAME);
+            var lab_SECT_NAME = document.createElement('div');
+            lab_SECT_NAME.innerHTML = 'SECT_NAME';
+            lab_SECT_NAME.className = 'filterlabel';
+            div_SECT_NAME.appendChild(lab_SECT_NAME);
+            var reset_SECT_NAME = document.createElement('div');
+            reset_SECT_NAME.innerHTML = 'clear filter';
+            reset_SECT_NAME.className = 'filterlabel';
+            reset_SECT_NAME.onclick = function() {
+                var options = document.getElementById("sel_SECT_NAME").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_SECT_NAME.appendChild(reset_SECT_NAME);
+        </script>
+    </body>
+</html>
